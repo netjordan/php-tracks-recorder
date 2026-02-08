@@ -54,7 +54,6 @@ function initUI(){
 
     $('.input-daterange').datepicker({
         format: 'yyyy-mm-dd',
-        language: 'fr',
         endDate: '0d',
     });
 

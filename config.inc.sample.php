@@ -2,7 +2,7 @@
 
 	//RENAME TO config.inc.php
 
-	setlocale(LC_TIME, "fr_FR");
+	setlocale(LC_TIME, "en_US");
 
 	//overland / owntracks
 	$_config['recorder'] = 'owntracks';
