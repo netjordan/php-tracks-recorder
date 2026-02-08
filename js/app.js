@@ -23,6 +23,9 @@ var default_zoom;
 var default_center;
 var live_view = false;
 var live_view_timer;
+var heatmap_active = false;
+var heatmap_layer = null;
+var show_heatmap;
 
 var marker_start_icons = [];
 var marker_finish_icons = [];
@@ -99,6 +102,9 @@ function initMap(){
     show_markers = Cookies.get('show_markers');
     console.log("initMap : INFO show_markers = " + show_markers);
 
+    show_heatmap = Cookies.get('show_heatmap');
+    console.log("initMap : INFO show_heatmap = " + show_heatmap);
+
     marker_start_icons[0] = L.AwesomeMarkers.icon({icon: 'play', markerColor: 'blue', iconColor: 'green' });
     marker_start_icons[1] = L.AwesomeMarkers.icon({icon: 'play', markerColor: 'red', iconColor: 'green' });
     marker_start_icons[2] = L.AwesomeMarkers.icon({icon: 'play', markerColor: 'orange', iconColor: 'green' });
@@ -134,6 +140,12 @@ function initMap(){
         //hideMarkers();
         //$('#show_markers').prop('checked',false);
         $('#show_markers').removeClass( "btn-default" ).addClass( "btn-primary" ).addClass( "active" );
+    }
+
+    // Set heatmap button state
+    if(show_heatmap == '1'){
+        $('#heatmap_toggle').removeClass("btn-default").addClass("btn-primary").addClass("active");
+        heatmap_active = true;
     }
 
     mymap = L.map('mapid').setView([48.866667, 2.333333], 11);
@@ -223,6 +235,12 @@ function gotoTrackerID(){
         trackerID = _trackerID;
         drawMap();
 
+        // Refresh heatmap if active
+        if(heatmap_active){
+            hideHeatmap();
+            showHeatmap();
+        }
+
     }else{
         $('#configCollapse').collapse('hide');
     }
@@ -243,6 +261,12 @@ function handlePopState(event){
 */
 function setLiveMap(){
     console.log("setLiveMap : INIT");
+
+    if(heatmap_active){
+        alert('Please disable heatmap view before enabling live map');
+        return false;
+    }
+
     live_view = !live_view;
 
     if(live_view){
@@ -478,7 +502,12 @@ function drawMap(_tid_markers){
                                 weight: 4,
                                 outlineColor: '#000000',
                                 outlineWidth: 0.5
-                        }).addTo(mymap);
+                        });
+
+                        // Only add polylines if heatmap is not active
+                        if(!heatmap_active){
+                            polylines[tid].addTo(mymap);
+                        }
 
                     }else{
                         console.log("drawMap : ERROR No location data for trackerID '" + trackerID + "' found !");
@@ -511,6 +540,11 @@ function drawMap(_tid_markers){
 
         //set map drawn flag
         map_drawn = true;
+
+        // If heatmap was active, recreate it with new data
+        if(heatmap_active){
+            showHeatmap();
+        }
 
         return true;
 
@@ -556,6 +590,140 @@ function eraseMap(){
         //}
 
     });
+
+    // Remove heatmap layer if exists
+    if(heatmap_layer != null){
+        hideHeatmap();
+    }
+
+    return true;
+}
+
+/**
+* Creates and displays heatmap layer from current track data
+*/
+function showHeatmap(){
+    console.log("showHeatmap : INIT");
+
+    try {
+        // Remove existing heatmap if present
+        if(heatmap_layer != null){
+            heatmap_layer.removeFrom(mymap);
+            heatmap_layer = null;
+        }
+
+        // Collect all coordinates for heatmap
+        var heatmap_data = [];
+
+        $.each(trackerIDs, function(_index, _tid){
+            // Respect tracker filter
+            if(trackerID == _tid || trackerID == window.config.default_trackerID){
+                if(_tid in my_latlngs && my_latlngs[_tid].length > 0){
+                    $.each(my_latlngs[_tid], function(_index2, _latlng){
+                        // Convert from [lat, lng, index] to [lat, lng, intensity]
+                        var intensity = (_index2 + 1) / my_latlngs[_tid].length;
+                        heatmap_data.push([_latlng[0], _latlng[1], intensity]);
+                    });
+                }
+            }
+        });
+
+        if(heatmap_data.length > 0){
+            // Create heatmap layer with configuration
+            heatmap_layer = L.heatLayer(heatmap_data, {
+                radius: 20,
+                blur: 15,
+                maxZoom: 18,
+                max: 1.0,
+                gradient: {
+                    0.0: 'blue',
+                    0.3: 'cyan',
+                    0.5: 'lime',
+                    0.7: 'yellow',
+                    1.0: 'red'
+                }
+            }).addTo(mymap);
+
+            console.log("showHeatmap : INFO Heatmap created with " + heatmap_data.length + " points");
+            return true;
+        } else {
+            console.log("showHeatmap : WARN No data available for heatmap");
+            return false;
+        }
+
+    } catch(err) {
+        console.log("showHeatmap : ERROR " + err.message);
+        alert(err.message);
+        return false;
+    }
+}
+
+/**
+* Removes heatmap layer from map
+*/
+function hideHeatmap(){
+    console.log("hideHeatmap : INIT");
+
+    if(heatmap_layer != null){
+        heatmap_layer.removeFrom(mymap);
+        heatmap_layer = null;
+        return true;
+    }
+    return false;
+}
+
+/**
+* Toggle between heatmap and standard track view
+*/
+function toggleHeatmap(){
+    console.log("toggleHeatmap : INIT");
+
+    // Prevent enabling heatmap when live map is active
+    if(!$('#heatmap_toggle').hasClass("btn-primary") && live_view){
+        alert('Please disable live map before enabling heatmap view');
+        return false;
+    }
+
+    if($('#heatmap_toggle').hasClass("btn-default")){
+        // Activate heatmap
+        heatmap_active = true;
+
+        // Hide polylines (tracks)
+        $.each(trackerIDs, function(_index, _tid){
+            if(_tid in polylines && polylines[_tid] != null){
+                polylines[_tid].removeFrom(mymap);
+            }
+        });
+
+        // Show heatmap
+        showHeatmap();
+
+        // Update UI and cookie
+        Cookies.set('show_heatmap', 1, { expires: 365 });
+        show_heatmap = 1;
+        $('#heatmap_toggle').removeClass("btn-default").addClass("btn-primary").addClass("active");
+
+    } else {
+        // Deactivate heatmap
+        heatmap_active = false;
+
+        // Hide heatmap
+        hideHeatmap();
+
+        // Show polylines (tracks) again
+        $.each(trackerIDs, function(_index, _tid){
+            if(trackerID == _tid || trackerID == window.config.default_trackerID){
+                if(_tid in polylines && polylines[_tid] != null){
+                    polylines[_tid].addTo(mymap);
+                }
+            }
+        });
+
+        // Update UI and cookie
+        Cookies.set('show_heatmap', 0, { expires: 365 });
+        show_heatmap = 0;
+        $('#heatmap_toggle').removeClass("btn-primary").removeClass("active").addClass("btn-default");
+    }
 
     return true;
 }

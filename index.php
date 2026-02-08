@@ -47,6 +47,7 @@ if(isset($_GET['trackerID']) && $_GET['trackerID'] != '' && strlen($_GET['tracke
 		<script src="//cdnjs.cloudflare.com/ajax/libs/leaflet/1.3.4/leaflet.js"></script>
 		<script src="//cdn.jsdelivr.net/npm/leaflet-hotline@0.4.0/src/leaflet.hotline.min.js"></script>
 		<script src="//cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.min.js"></script>
+		<script src="//cdn.jsdelivr.net/npm/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
 
 		<script src="//cdnjs.cloudflare.com/ajax/libs/js-cookie/2.2.0/js.cookie.min.js"></script>
 
@@ -125,7 +126,13 @@ if(isset($_GET['trackerID']) && $_GET['trackerID'] != '' && strlen($_GET['tracke
 							<span class="visible-xs"><span class="glyphicon glyphicon-play-circle"></span></span>
 						</a>
 					</div>
-					<div class="col-xs-8 text-right">
+					<div class="col-xs-2 text-left">
+					  	<a role="button" onclick="toggleHeatmap();" class="btn btn-default" id="heatmap_toggle">
+							<span class="hidden-xs">Heatmap</span>
+							<span class="visible-xs"><span class="glyphicon glyphicon-fire"></span></span>
+						</a>
+					</div>
+					<div class="col-xs-6 text-right">
 						<form class="form-inline"><span class="hidden-xs">Accuracy : </span>
 						    <div class="input-group">
 						      <input type="number" size='4' class="form-control" id="accuracy" value="<?php echo $accuracy; ?>" />
