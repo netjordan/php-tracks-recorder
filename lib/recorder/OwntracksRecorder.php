@@ -28,7 +28,7 @@ class OwntracksRecordStructure extends AbstractRecordStructure {
 class OwntracksRecorder extends AbstractRecorder
 {
 
-  public function getTrackerID(AbstractRecordStructure $rec): int
+  public function getTrackerID(AbstractRecordStructure $rec): string
   {
     return strval($rec->tid);
   }
@@ -63,7 +63,7 @@ class OwntracksRecorder extends AbstractRecorder
         if (array_key_exists('vac', $data)) $rec->vac = intval($data['vac']);
         if (array_key_exists('vel', $data)) $rec->vel = intval($data['vel']);
         if (array_key_exists('p', $data)) $rec->p = floatval($data['p']);
-        if (array_key_exists('conn', $data)) $rec->conn = strval($data['conn']);
+        if (array_key_exists('conn', $data)) $rec->con = strval($data['conn']);
         if (array_key_exists('topic', $data)) $rec->topic = strval($data['topic']);
 
         $records[] = $rec;
@@ -103,7 +103,7 @@ class OwntracksRecorder extends AbstractRecorder
     $sqlRecord->vertical_accuracy = intval($record_struct->vac);
     $sqlRecord->velocity = intval($record_struct->vel);
     $sqlRecord->pressure = floatval($record_struct->p);
-    $sqlRecord->connection = strval($record_struct->conn);
+    $sqlRecord->connection = strval($record_struct->con);
     $sqlRecord->topic = strval($record_struct->topic);
 
     return $sqlRecord;
@@ -111,7 +111,9 @@ class OwntracksRecorder extends AbstractRecorder
 
   public function getFriendsLocation(AbstractRecordStructure $record_struct): array
   {
-    return $sql->getFriends($record_struct->getTrackerID());
+    // friends feature not implemented yet
+    $friends = array();
+    return $friends;
   }
 
   public function buildResponseArray(string $response_msg, int $response_code): array

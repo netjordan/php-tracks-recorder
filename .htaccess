@@ -1,0 +1,10 @@
+AuthType Basic
+AuthName "Tracks Recorder - Login Required"
+AuthUserFile /home/YOUR_CPANEL_USERNAME/public_html/YOUR_PATH/.htpasswd
+Require valid-user
+
+# Allow record.php to bypass authentication (for mobile app data submission)
+<Files "record.php">
+    Satisfy Any
+    Allow from all
+</Files>

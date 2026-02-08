@@ -22,7 +22,7 @@ class OverlandRecordStructure extends AbstractRecordStructure {
 class OverlandRecorder extends AbstractRecorder
 {
 
-  public function getTrackerID(AbstractRecordStructure $rec): int
+  public function getTrackerID(AbstractRecordStructure $rec): string
   {
     return strval($rec->device_id);
   }

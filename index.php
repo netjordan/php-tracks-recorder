@@ -129,7 +129,7 @@ if(isset($_GET['trackerID']) && $_GET['trackerID'] != '' && strlen($_GET['tracke
 					<div class="col-xs-8 text-right">
 						<form class="form-inline"><span class="hidden-xs">Accuracy : </span>
 						    <div class="input-group">
-						      <input type="number" size='4' class="form-control" id="accuracy" value="<?echo $accuracy; ?>" />
+						      <input type="number" size='4' class="form-control" id="accuracy" value="<?php echo $accuracy; ?>" />
 							  <span class="input-group-addon"><span class="hidden-xs">meters</span><span class="visible-xs">m</span></span>
 							  <span class="input-group-btn"><button type="button" class="btn btn-default" id="accuracySubmit">OK</button></span>
 							</div>

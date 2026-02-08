@@ -23,8 +23,8 @@ abstract class AbstractDb
             if($data['accuracy'] < $accuracy) $already_better_accuracy = true;
         }
 
-        return ((count($result) > 0) || $already_better_accuracy);
-        
+        return ((count($result) > 0) && $already_better_accuracy);
+
     }
 
     public function addRecord(SQLStructure $sql_record): bool {
@@ -62,8 +62,7 @@ abstract class AbstractDb
 
     public function getFriends(string $trackerId): array
     {
-        $sql = "select * from ".$_config['sql_prefix']."locations a JOIN (SELECT MAX(epoch) AS epoch, tracker_id FROM ' . $this->prefix . 'locations WHERE tracker_id != ? GROUP BY tracker_id) b ON a.epoch = b.epoch AND a.tracker_id = b.tracker_id";
-        $sql = 'SELECT * FROM ' . $this->prefix . 'locations WHERE epoch >= ? AND epoch <= ? AND accuracy < ? AND altitude >=0 ORDER BY tracker_id, epoch ASC';
+        $sql = 'SELECT * FROM ' . $this->prefix . 'locations a JOIN (SELECT MAX(epoch) AS epoch, tracker_id FROM ' . $this->prefix . 'locations WHERE tracker_id != ? GROUP BY tracker_id) b ON a.epoch = b.epoch AND a.tracker_id = b.tracker_id';
         $result = $this->query($sql, array($trackerId));
 
 

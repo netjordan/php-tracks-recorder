@@ -35,7 +35,7 @@ class MySqlPdo extends AbstractDb
             return false;
         }
 
-        foreach ($params as $p) {
+        foreach ($params as $i => $p) {
             $type = gettype($p);
             switch ($type) {
                 case 'integer':
@@ -51,7 +51,7 @@ class MySqlPdo extends AbstractDb
                     $paramType = \PDO::PARAM_STR;
                     break;
             }
-            $stmt->bindParam($p, $paramType);
+            $stmt->bindValue($i + 1, $p, $paramType);
         }
 
         return $stmt;
@@ -61,10 +61,10 @@ class MySqlPdo extends AbstractDb
     {
         $stmt = $this->prepareStmt($sql, $params);
         if (!$stmt) {
-            return false; // should be exception or empty array
+            return []; // should be exception or empty array
         }
         if (!$stmt->execute()) {
-            return false; // should be exception or empty array
+            return []; // should be exception or empty array
         }
 
         return $stmt->fetchAll();

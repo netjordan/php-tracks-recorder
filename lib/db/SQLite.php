@@ -14,7 +14,7 @@ class SQLite extends AbstractDb
     {
         $stmt = $this->db->prepare($sql);
         if (!$stmt) {
-            return false;
+            return [];
         }
         $stmt->execute($params);
 

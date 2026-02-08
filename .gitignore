@@ -2,6 +2,7 @@ batch_load.php
 config.inc.php
 owntracks.db3
 log/*
+.htpasswd
 
 # PHPStorm folder
 .idea/

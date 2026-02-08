@@ -36,7 +36,7 @@ abstract class AbstractRecorder
   }
 
   //return tracker ID from structure
-  abstract public function getTrackerID(AbstractRecordStructure $record_struct): int;
+  abstract public function getTrackerID(AbstractRecordStructure $record_struct): string;
 
   //parse payload content & générate array of structures
   abstract public function parsePayload(string $payload): array;
@@ -70,10 +70,8 @@ abstract class AbstractRecorder
     		return $result;
 
     	} else {
+        _log("Duplicate location found for epoch - no insert");
         throw new \Exception("Duplicate location found for epoch. Ignoring.", 200);
-
-    		_log("Duplicate location found for epoc ".$record_struct->t." / tid '".$record_struct->tid."' - no insert");
-    		$response_msg = 'Duplicate location found for epoch. Ignoring.';
     	}
   }
 

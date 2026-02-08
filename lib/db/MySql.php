@@ -10,7 +10,7 @@ class MySql extends AbstractDb
             $this->db = new \mysqli($hostname, $username, $password, $db);
             $this->prefix = $prefix;
         } catch (Exception $ex) {
-            _log("mysql error:".$ex->getMessage()." | ".$mysqli->error);
+            _log("mysql error:".$ex->getMessage()." | ".$this->db->error);
         }
     }    
 
@@ -46,10 +46,10 @@ class MySql extends AbstractDb
     {
         $stmt = $this->prepareStmt($sql, $params);
         if (!$stmt) {
-            return false;
+            return [];
         }
         if (!$stmt->execute()) {
-            return false;
+            return [];
         }
         $dbresult = $stmt->get_result();
 
